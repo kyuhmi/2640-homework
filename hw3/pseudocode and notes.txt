@@ -1,0 +1,17 @@
+pseudocode and notes.txt
+
+get ints from users
+    while count < 20
+        print message to user and wait for response
+        get response, put to array, increment
+
+print nums on single lnie
+    iterate through array
+        for each element in array
+            if at end, print out item in array + newline
+            else print it out + space
+
+ask user for n:
+    get n and load it.
+        for first position, print out first 3 nums from there
+        
