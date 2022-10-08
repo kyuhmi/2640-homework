@@ -52,7 +52,7 @@ printNumsNL:
     add     $t5,            $t5,            $a1
     li      $t6,            4                                   # size of memory for integers
     mult    $t5,            $t6                                 # get amount of offset needed for array
-    mflo    $t5                                                 # get product out of lo and put it back into t2 - gets the num of bits offset needed
+    mflo    $t5                                                 # get product out of lo - this shouldn't exceed 80, so it won't go into hi
     addu    $t1,            $t1,            $t5                 # memory location + offset(which is 4*(firstIndex - 1))
 printNLLoop:
     beq     $a1,            $a2,            lastIndexNL           # if they are equal, jump to last step.
@@ -81,7 +81,7 @@ printNums:
     add     $t5,            $t5,            $a1
     li      $t6,            4                                   # size of memory for integers
     mult    $t5,            $t6                                 # get amount of offset needed for array
-    mflo    $t5                                                 # get product out of lo and put it back into t2 - gets the num of bits offset needed
+    mflo    $t5                                                 # get product out of lo - this shouldn't exceed 80, so it won't go into hi
     addu    $t1,            $t1,            $t5                 # memory location + offset(which is 4*(firstIndex - 1))
 printLoop:
     beq     $a1,            $a2,            lastIndex           # if they are equal, jump to last step.
