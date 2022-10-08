@@ -187,6 +187,7 @@ lastIndexNL:
 #         c. Print newline character
 #     6. Return
 #########################################################################################################################
+
 printNums:
     la      $t1,            arr                                 # load array pointer
     li      $t5,            -1                                  # initalize value to use to calculate memory offset required by beginning index
