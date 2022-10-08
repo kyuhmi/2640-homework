@@ -1,0 +1,60 @@
+Begin entering 20 integers: 
+Enter next integer: 1
+Enter next integer: 2
+Enter next integer: 3
+Enter next integer: 4
+Enter next integer: 5
+Enter next integer: 6
+Enter next integer: 7
+Enter next integer: 8
+Enter next integer: 9
+Enter next integer: 10
+Enter next integer: 11
+Enter next integer: 12
+Enter next integer: 13
+Enter next integer: 14
+Enter next integer: 15
+Enter next integer: 16
+Enter next integer: 17
+Enter next integer: 18
+Enter next integer: 19
+Enter next integer: 20
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+Enter n (size of each subset of numbers to be printed out): 4
+1 2 3 4
+2 3 4 5
+3 4 5 6
+4 5 6 7
+5 6 7 8
+6 7 8 9
+7 8 9 10
+8 9 10 11
+9 10 11 12
+10 11 12 13
+11 12 13 14
+12 13 14 15
+13 14 15 16
+14 15 16 17
+15 16 17 18
+16 17 18 19
+17 18 19 20
