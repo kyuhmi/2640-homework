@@ -1,7 +1,4 @@
 
-
-# note zone
-
 .data
 prompt1: .asciiz "Begin entering 20 integers: "
 prompt2: .asciiz "Enter next integer: "
@@ -49,6 +46,12 @@ loadArrayEnd:
 # input a1 = firstindex, a2 = endindex
 printNums:
     la      $t1,            arr                                 # load array pointer
+    li      $t5,            -1                                  # initalize value to use to calculate memory offset required by beginning index
+    add     $t5,            $t5,            $a1
+    li      $t6,            4                                   # size of memory for integers
+    mult    $t5,            $t6                                 # get amount of offset needed for array
+    mflo    $t5                                                 # get product out of lo and put it back into t2 - gets the num of bits offset needed
+    addu    $t1,            $t1,            $t5                 # memory location + offset(which is 4*(firstIndex - 1))
 printLoop:
     beq     $a1,            $a2,            lastIndex           # if they are equal, jump to last step.
     lw      $a0,            0($t1)                              # they are not equal, print nums until they are.
@@ -86,7 +89,7 @@ printSubsetLoop:
     jal     printNums                                           # call printnums
     addi    $t2,            $t2,            1                   # increment beginning index
     addi    $t3,            $t3,            1                   # increment end index
-    bne     $t3,            $t4,            printSubsetLoop     # check if we are at last index. If not, then continue loop
+    ble     $t3,            $t4,            printSubsetLoop     # check if we are past the last index. if we aren't, then continue looping.
 endSubset:
     jr      $ra                                                 # return
 
