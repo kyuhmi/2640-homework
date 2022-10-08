@@ -14,7 +14,7 @@ main:
     jal     loadArray                                           # call loadArray
     li      $a1,            1                                   # load input values for printing 1 - 20
     li      $a2,            20
-    jal     printNumsNL   
+    jal     printNumsNL
     li      $a1,            1                                   # load input values for printing 1 - 20
     li      $a2,            20
     jal     printNums                                           # call printNums
@@ -55,16 +55,16 @@ printNumsNL:
     mflo    $t5                                                 # get product out of lo - this shouldn't exceed 80, so it won't go into hi
     addu    $t1,            $t1,            $t5                 # memory location + offset(which is 4*(firstIndex - 1))
 printNLLoop:
-    beq     $a1,            $a2,            lastIndexNL           # if they are equal, jump to last step.
+    beq     $a1,            $a2,            lastIndexNL         # if they are equal, jump to last step.
     lw      $a0,            0($t1)                              # they are not equal, print nums until they are.
     li      $v0,            1
     syscall 
-    la      $a0,            newline                               # printing newline
+    la      $a0,            newline                             # printing newline
     li      $v0,            4
     syscall 
     addi    $t1,            $t1,            4                   # increment array pointer
     addi    $a1,            $a1,            1                   # increment first index
-    j       printNLLoop                                           # loop
+    j       printNLLoop                                         # loop
 lastIndexNL:
     lw      $a0,            0($t1)                              # print last num followed by newline character
     li      $v0,            1
