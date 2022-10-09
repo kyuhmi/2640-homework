@@ -232,6 +232,7 @@ lastIndex:
 # Algoritmic Description in Pseudocode:
 #     1. Print prompt 3 to user
 #     2. Get n from user, and then store it into $t3
+#        a. if n <= 0, repeat the prompt until the user enters a valid number
 #     3. Initialize beginning index as 1 into $t2
 #     4. Initialize max index 20 into $t4
 #     5. If beginning index is greater than max index, then jump to the end.
@@ -250,6 +251,7 @@ printSubsetN:
     syscall 
     li      $v0,            5                                   # get n from user
     syscall 
+    blez    $v0,            printSubsetN                        # if number entered by user is <= 0, repeat the prompt.
     move    $t3,            $v0                                 # copy end index to t3 (end index = n)
     li      $t2,            1                                   # initialize beginning index
     li      $t4,            20                                  # store max possible index
