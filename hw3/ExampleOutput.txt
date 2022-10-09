@@ -58,3 +58,5 @@ Enter n (size of each subset of numbers to be printed out): 4
 15 16 17 18
 16 17 18 19
 17 18 19 20
+
+-- program is finished running --
