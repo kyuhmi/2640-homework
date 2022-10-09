@@ -247,6 +247,8 @@ lastIndex:
 #########################################################################################################################
 
 printSubsetN:
+    addiu   $sp,            $sp,            -4                  # move sp up
+    move 	$sp,            $ra	                                # store return address at stack pointer (for the sake of method calls in function)
     j promptUser
 errorMessage:
     la      $a0,            prompt4                             # for when user inputs invalid n (n must be greater than 0)
@@ -271,6 +273,8 @@ printSubsetLoop:
     addi    $t3,            $t3,            1                   # increment end index
     ble     $t3,            $t4,            printSubsetLoop     # check if we are past the last index. if we aren't, then continue looping.
 endSubset:
+    move 	$ra,            $sp	                                # get original return address back
+    addiu   $sp,            $sp,            4                   # move sp back down
     jr      $ra                                                 # return
 
 
