@@ -23,6 +23,7 @@
 prompt1: .asciiz "Begin entering 20 integers: "
 prompt2: .asciiz "Enter next integer: "
 prompt3: .asciiz "Enter n (size of each subset of numbers to be printed out): "
+prompt4: .asciiz "Please enter a value of n where n > 0.\n"
 newline: .asciiz "\n"
 space: .asciiz " "
 .align 2
@@ -232,7 +233,7 @@ lastIndex:
 # Algoritmic Description in Pseudocode:
 #     1. Print prompt 3 to user
 #     2. Get n from user, and then store it into $t3
-#        a. if n <= 0, repeat the prompt until the user enters a valid number
+#        a. if n <= 0, print prompt 4 and then repeat prompt3 until the user enters a valid number
 #     3. Initialize beginning index as 1 into $t2
 #     4. Initialize max index 20 into $t4
 #     5. If beginning index is greater than max index, then jump to the end.
@@ -246,12 +247,18 @@ lastIndex:
 #########################################################################################################################
 
 printSubsetN:
+    j promptUser
+errorMessage:
+    la      $a0,            prompt4                             # for when user inputs invalid n (n must be greater than 0)
+    li      $v0,            4
+    syscall
+promptUser:
     la      $a0,            prompt3                             # ask user to put in n
     li      $v0,            4
     syscall 
     li      $v0,            5                                   # get n from user
     syscall 
-    blez    $v0,            printSubsetN                        # if number entered by user is <= 0, repeat the prompt.
+    blez    $v0,            errorMessage                        # if number entered by user is <= 0, repeat the prompt.
     move    $t3,            $v0                                 # copy end index to t3 (end index = n)
     li      $t2,            1                                   # initialize beginning index
     li      $t4,            20                                  # store max possible index
