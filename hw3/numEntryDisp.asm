@@ -229,6 +229,7 @@ lastIndex:
 #     $v0 - used in syscalls
 #     $t2, $t3, $t4 - temporary values for calculations for n
 #     $ra - return address
+#     $sp - used to store original ra for calling subroutines from this subroutine
 #########################################################################################################################
 # Algoritmic Description in Pseudocode:
 #     1. Print prompt 3 to user
