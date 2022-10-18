@@ -1,0 +1,53 @@
+Function: comb(n,r) = n! / r! (n-r)!
+
+Recursive call to calculate factorials?
+Given n and r:
+    get n!
+    get r!
+    get (n-r)!
+    calcualte comb and ret;
+
+Factorial function:
+    given input is a
+    recursive function call
+        ret = a * fact(a-1)
+    
+    Todo list for recursive call:
+        if (a = 0), return 1. else,
+        push current value of a to stack. 
+        call fact(a-1)
+        store $v0 into temp
+        pop a from stack
+        ret = a * temp
+
+Research for recursive combinatorial fxns
+https://stackoverflow.com/questions/20485602/how-do-i-write-a-recursive-function-for-a-combination
+
+nCr = (n-1)C(r-1) + (n-1)Cr
+
+Write a recursive function that computes Comb(n, r), where n >= r and r >= 0.
+
+    Comb(n, r) = 1 if n == r or r == 0
+    Comb(n, r) = Comb(n - 1, r) + Comb(n - 1, r - 1)
+
+You will need to determine what values need to be saved on the stack, and you will need to know how to pass parameters into and out of a recursive function.
+
+To test this routine, write a 'main' function that asks the user to enter values for n and r, then check to make sure the value are valid.  If any input is incorrect, print a message, loop back, and accept a different number.  Once you have valid values for n and r, call your Comb function, then print the result.
+
+Note: Do not use really large values for n and/or r, unless you have a lot of spare time on your hands.
+
+Submit the source code of your program and a printout of several runs.  Check this in to Canvas when you are done.
+
+Be sure you enter your name in the comment block at the start of the file!
+Steps
+
+For this homework, you will write an assembly language program using either MARS or SPIM.  Here are the particulars:
+
+    The main routine should print a prompt asking for the n and r values.
+    Accept these numbers, then verify that they are positive integer values, not too large, and that n is not smaller than r.  If these conditions are not met, print an appropriate error message, then loop back to get new values.
+    Once the values are correct, call your Comb function, passing these values, then receiving the return value.
+    Print a message, then the return value, then quit the program.
+    Your Comb function should be recursive, which means it will need to allocate space on the stack to store various values, perform the calculations, make the recursive calls, and clean up the stack when done.
+
+    Save a printout of a sample run to a text file.
+    Submit your source code file and the output of your sample run to Canvas.
