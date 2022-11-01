@@ -1,0 +1,17 @@
+1. Make space for 4 items on the stack
+2. Store ra, wagerSize, and guess to the stack, and initialize counter to 0.
+3. Do the following 3 times:
+    a. push counter to stack
+    b. call rand()
+    c. retrieve counter from stack 
+    d. print the return from rand()
+    e. retrieve guess from stack
+    f. if guess matches the output of rand(), increment counter.
+4. print the appropriate message for the number of matches
+5. retrieve wager from stack and update balance accordingly to the number of matches.
+    a. 0 matches: decrease balance by wager
+    b. 1 match: increase balance by wager
+    c. 2 matches: increase balance by wager*2
+    d. 3 matches: increase balance by wager*3
+6. retrieve $ra from stack, free up stack space
+7. return.
