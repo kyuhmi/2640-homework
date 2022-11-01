@@ -1,0 +1,5 @@
+Please enter a number for n: 12
+Please enter a number for r: 3
+220
+-- program is finished running --
+
