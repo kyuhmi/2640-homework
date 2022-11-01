@@ -1,0 +1,28 @@
+Welcome to Chuck-A-Luck!
+Enter seed: 1234
+
+
+You currently have $500
+How much would you like to wager? 500
+
+What number do you want to bet on? 3
+I roll: 4 2 3
+You matched once.
+
+You currently have $1000
+How much would you like to wager? 1000
+
+What number do you want to bet on? 3
+I roll: 3 3 4
+You matched twice!
+
+You currently have $3000
+How much would you like to wager? 3000
+
+What number do you want to bet on? 3
+I roll: 2 5 2
+You didn't match any!
+You have no money left. Goodbye!
+
+-- program is finished running --
+
