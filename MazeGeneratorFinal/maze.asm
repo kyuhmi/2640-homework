@@ -17,43 +17,14 @@ main:
     syscall
     move 	$a0, $v0		# put user int into a0 for seeding fxn
     jal		seedrand				# call seeding fxn
-
     jal		getSize				# call getSize
     jal     initBoard           # initialize board
     jal     pickExit            # place exit
     jal		pickEntrance		# place entrance
-
-    la		$t0, wid		    # get pointer to width
-    lw		$t0, 0($t0)		    # dereference width
-    la		$t1, hgt		    # get pointer to height
-    lw      $t1, 0($t1)         # dereference height
-    mult	$t0, $t1			# calucalte num squares, store into t0
-    mflo	$t0					
-    addi	$t0, $t0, -1		# decrement num squares since 1 was consumed by placing entrance
-    
+    jal		takeMove				# call recursive move function
     jal		printBoard			# print board
-    
-    #jal     printRawBoard       # TEMP:
-    
     li		$v0, 10		# exit
     syscall
-    
-    
-# TEMP: function to print all the data in the board space...
-printRawBoard:
-    la		$t0, board	    # board pointer
-    li      $t1, 0          # loop couunter
-    li      $t2, 49       # upper bound for loop
-    li      $v0, 1          # initialize for printing
-printLoop:
-    lb		$a0, 0($t0)		# load bit
-    syscall
-    addiu	$t0, $t0, 1			# increment to next bit
-    addi    $t1, $t1, 1        # increment counter 
-    beq		$t1, $t2, printLoopExit
-    j       printLoop
-printLoopExit:
-    jr		$ra					# jump to $ra
 
 
 ########################################################################
@@ -161,7 +132,6 @@ getSize:
 .text
 
 initBoard:
-    # POTENTIAL ISSUE: can you access something with the address and store it back into the same register?
     la		$t0, board		# t0 points to the board.
     la		$t1, wid		# load address of width into t1
     lw		$t1, 0($t1)		# load width into t1
@@ -169,51 +139,30 @@ initBoard:
     la		$t2, hgt		# load address of height into t2
     lw		$t2, 0($t2)		# load height into t2
     addi	$t2, $t2, 2			# add implicit 2
-    li		$t3, 0		# initialize loop counter i
-
+    li		$t3, 1		# initialize loop counter i
     li		$t8, 0		# t8 = 0 for storage later
     li		$t9, 5		# t9 = 5 for storage later
-    
-    move $t5, $t1 # store width - 1
-    addi	$t5, $t5, -1			
-    move $t6, $t2 # store height - 1
-    addi $t6, $t6, -1
-    
-    
-
-    iLoop:
-    li		$t4, 0		# initialize loop counter j for each instance of the i loop
-    #do i loop stuff
-    jLoop:
-    # j loop body
-    multu	$t3, $t1			# caluclating offset: i * width
-    mflo	$t7				
-    addu		$t7, $t7, $t4		# store offset i * width + col into t7
-    addu	$t7, $t7, $t0 # t7 now has address of the element in array.
-    beqz $t3, store5 # if i == 0, we store a 5
-    beq		$t3, $t5, store5	# if i == width - 1, we store a 5
-    beqz $t4, store5 # if j == 0, we store a 5
-    beq $t4, $t6, store5 # if j == height - 1, we store a 5
-    j store0 # else, we are storing a 0.
-    
-
+    li		$t6, 1		# $t6 = 1 for comparisons
+    loopi:
+    li		$t4, 1		# initialize loop counter j
+    move    $t5, $t0    # copy base pointer into t5
+    loopj:
+    beq		$t3, $t6, store5	# if i == 1, then we store only 5s.
+    beq		$t4, $t6, store5	# if j == 1, then we store only 5s.
+    beq		$t3, $t2, store5	# if i == height + 2, then we store 5s.
+    beq		$t4, $t1, store5	# if j == width + 2, then we store 5s.
+    sb      $t8, 0($t5)         # else, we store 0 into the bit.
+    j		storeExit	
     store5:
-    sb		$t9, 0($t7)		# store a 5 in the spot of the array
-    j storeExit
-    store0:
-    sb		$t8, 0($t7)		# store a 0 in the spot of the array
-    j storeExit
+    sb		$t9, 0($t5)		# store 5 into the bit.
     storeExit:
-    
-    # j loop body
-    addi	$t4, $t4, 1			# increment j loop counter
-    ble		$t4, $t2, jLoop	# if j <= height - 1, continue j loop. Else, escape loop.
-    addi	$t3, $t3, 1			# out of j loop, increment i loop counter
-    ble		$t3, $t1, iLoop	# if i <= width - 1, continue i loop. Else, exit loop.
-    #loop exit
-    
+    addiu   $t5, $t5, 1     # increment pointer in row
+    addi    $t4, $t4, 1     # increment j
+    ble		$t4, $t1, loopj	# if j <= width + 2, then continue looping.
+    addu    $t0, $t0, $t1 # increment base pointer to next row
+    addi    $t3, $t3, 1 # increment i loop counter
+    ble     $t3, $t2, loopi    # if i <= height + 2, then continue looping.
     jr		$ra					# return
-    
     
 
 ########################################################################
@@ -287,6 +236,7 @@ pickEntrance:
     la		$t0, wid		# get pointer to width
     lw		$a0, 0($t0)		# load width into a0
     jal		rand				# call rand fxn passing in width
+    addi	$v0, $v0, 1			# increment value from rand by 1 to bring it into range
     la		$t0, cy		# get pointer to cy
     li		$t1, 1		# store 1 to store into cy
     sw		$t1, 0($t0)		# set cy to 1
@@ -331,6 +281,7 @@ pickExit:
     la		$t0, wid		# get pointer to width
     lw		$a0, 0($t0)		# load width into a0
     jal		rand				# call rand fxn passing in width
+    addi	$v0, $v0, 1			# increment value from rand by 1 to bring it into range
     la		$t0, hgt		# get pointer to height
     lw		$t1, 0($t0)		# get height
     addi    $t1, $t1, 1     # increment height by 1 to move it into the boarder.
@@ -399,23 +350,15 @@ printBoard:
     addi	$t1, $t1, 2		# increment width by 2 to account for empty space
     la		$t2, hgt        # get pointer to height
     lw		$t2, 0($t2)		# dereference height
-
     move    $t3, $t0        # t3 now points to the first element of the board
     addu    $t3, $t3, $t1   # t3 now points to first element of second row
     addiu   $t3, $t3, 1     # t3 now poitns to second element of second row, the first real value.
-
     li		$t4, 0		    # initialize rowLoopCounter
-    
     li      $v0, 4          # preparing to print strings
-    
-
     forEachRow:
-    #row loop body
-    # printing N walls
     li      $t5, 0          # initialize / reset colLoopCounter
     move    $t7, $t3        # make a copy of the pointer to element in board
     forEachColN:
-    #col loop body
     lb		$t8, 0($t7)		        # load the value of the bit into t8
     li		$t9, 1		            # comparison value for current place coming from north
     beq		$t8, $t9, printNoNWall	# if curr bit = 1, then it came from the north so no wall should be printed.
@@ -431,20 +374,15 @@ printBoard:
     la		$a0, wallHorizOpen		# print an open north wall
     syscall
     printNWallExit:
-    #col loop body
     addiu   $t7, $t7, 1             # increment pointer to next bit of data
     addi    $t5, $t5, 1             # increment colLoopCounter
     blt		$t5, $t6, forEachColN    # if colLoopCounter < width, continue looping, else, keep going.
     la		$a0, wallHorizEnd		# we are done printing north walls, so move onto next line.
     syscall
-
     beq		$t4, $t2, printingExit	# if rowLoopCounter == height, then we should skip printing vertical walls.
-    
-    # printing side walls
     li      $t5, 0          # reset colLoopCounter
     move    $t7, $t3        # make a copy of the pointer to element in board
     forEachColS:
-    #col loop body
     lb		$t8, 0($t7)		            # load current value of current place
     li		$t9, 4		                # value that represents "came from west" for comparison
     beq		$t9, $t8, printOpenSideWall	# if the current element came from the west, we shouldn't print a wall.
@@ -458,32 +396,16 @@ printBoard:
     la		$a0, wallVertOpen		# printing open side wall
     syscall
     printSideWallExit:
-    #col loop body
     addiu   $t7, $t7, 1             # increment pointer to next bit of data
     addi    $t5, $t5, 1             # increment colLoopCounter
     blt		$t5, $t6, forEachColS    # if colLoopCounter < width, continue looping, else, keep going.
-    
     la		$a0, wallVertEnd		# done printing vertical walls, so move to next line.
     syscall
-
-    #row loop body
     addu    $t3, $t3, $t1           # move pointer to second element of next row
     addi    $t4, $t4, 1             # increment rowLoopCounter
     ble		$t4, $t2, forEachRow	# if rowLoopCounter <= height (should include last OOB row), continue looping, else, keep going.
-    
     printingExit:
     jr		$ra					# done, so we return.
-    
-
-    
-    
-    
-    
-    
-    
-
-
-
 
 ########################################################################
 # Function Name: int rand()
@@ -585,3 +507,167 @@ seedrand:
 #    4. Restore the $ra and $s register values
 #
 ########################################################################
+
+.text
+takeMove:
+    addiu   $sp, $sp, -32   # allocate stack space
+    sw		$ra, 0($sp)		# store return address on stack
+    
+    la		$t0, board		# get pointer to board
+    la		$t1, cx		    # get pointer to cx
+    lw		$t1, 0($t1)		# dereference cx
+    sw		$t1, 24($sp)	# store cx on stack
+    la		$t2, cy         # get pointer to cy
+    lw		$t2, 0($t2)		# dereference cy
+    sw		$t2, 28($sp)		# store cy on stack
+    
+    la		$t3, wid		# get pointer to width
+    lw		$t3, 0($t3)		# dereference width
+    addi	$t3, $t3, 2		# increment width by 2 to account for blank space
+    mult	$t2, $t3		# calculate offset to move down by to get to position, put it into t4
+    mflo	$t4				
+    addu    $t0, $t0, $t4   # increment board pointer by this offset to move down to that row.
+    addu    $t0, $t0, $t1   # move right cx times. t0 now points to the proper position on the board.
+
+    move    $t1, $t0        # storing into t1 the address of left neighbor
+    addu    $t1, $t1, -1    
+    move    $t2, $t0        # storing into t2 the address of right neighbor
+    addu    $t2, $t2, 1
+    move    $t4, $t3        # put width+2 into t4, and -width+2 into t3
+    negu    $t3, $t3          
+    addu    $t3, $t3, $t0   # store address of upper neighbor to t3
+    addu   $t4, $t4, $t0   # store address of lower neighbor to t4
+
+    # store eveyrthing on the stack.
+    sw      $t1, 4($sp)     # store address of l.neighbor to stack
+    sw      $t2, 8($sp)     # store address of r.neighbor to stack
+    sw      $t3, 12($sp)     # store address of u.neighbor to stack
+    sw      $t4, 16($sp)     # store address of lw.neighbor to stack
+
+    # pick a random direction to move
+    li		$a0, 4		# input value for rand fxn
+    jal		rand				# call random
+    li		$t1, 0		# initialize counter for visited neighbors
+    li		$t0, 0		        # block of code to determine where to go depending on output of random
+    beq		$v0, $t0, rand0	
+    li		$t0, 1		
+    beq		$v0, $t0, rand1	
+    li		$t0, 2		
+    beq		$v0, $t0, rand2	
+    li		$t0, 3		
+    beq		$v0, $t0, rand3	
+rand0:
+    addi	$t1, $t1, 1			# increment counter
+    lw		$t0, 4($sp)		# get address of left neighbor
+    lb		$t2, 0($t0)		# dereference value of neighbor
+    bnez    $t2, rand0skip    # if the space isn't free, then we skip visiting the neighbor. Otherwise, we will visit them.
+
+    li		$t2, 3		# value of "came from east"
+    sb		$t2, 0($t0)		# store into left neighbor "came from east"
+
+    sw		$t1, 20($sp)		# store counter on stack
+    lw		$t1, 24($sp)		# get cx from stack
+    addi	$t1, $t1, -1		# cx - 1
+    la		$t0, cx		        # get pointer to cx
+    sw		$t1, 0($t0)		    # write new cx
+    jal		takeMove				# recursively call takeMove
+    lw		$t1, 24($sp)		# get cx from stack
+    la		$t0, cx		        # get pointer to cx
+    sw		$t1, 0($t0)		    # restore cx
+    lw		$t1, 20($sp)		# restore counter
+    rand0skip:
+    li		$t0, 4		# value for comparison
+    beq		$t1, $t0, doneOp	# if counter == 4, then all neighbors have been visited, so we are done. Else, fall through.
+rand1:
+    addi	$t1, $t1, 1			# increment counter
+    lw		$t0, 8($sp)		# get address of right neighbor
+    lb		$t2, 0($t0)		# dereference value of neighbor
+    bnez    $t2, rand1skip    # if the space isn't free, then we skip visiting the neighbor. Otherwise, we will visit them.
+
+    li		$t2, 4		# value of "came from west"
+    sb		$t2, 0($t0)		# store into right neighbor "came from west"
+
+    sw		$t1, 20($sp)		# store counter on stack
+    lw		$t1, 24($sp)		# get cx from stack
+    addi	$t1, $t1, 1		# cx + 1
+    la		$t0, cx		        # get pointer to cx
+    sw		$t1, 0($t0)		    # write new cx
+    jal		takeMove				# recursively call takeMove
+    lw		$t1, 24($sp)		# get cx from stack
+    la		$t0, cx		        # get pointer to cx
+    sw		$t1, 0($t0)		    # restore cx
+    lw		$t1, 20($sp)		# restore counter
+
+    rand1skip:
+    li		$t0, 4		# value for comparison
+    beq		$t1, $t0, doneOp	# if counter == 4, then all neighbors have been visited, so we are done. Else, fall through.
+rand2:
+    addi	$t1, $t1, 1			# increment counter
+    lw		$t0, 12($sp)		# get address of upper neighbor
+    lb		$t2, 0($t0)		# dereference value of neighbor
+    bnez    $t2, rand2skip    # if the space isn't free, then we skip visiting the neighbor. Otherwise, we will visit them.
+
+    li		$t2, 2		# value of "came from south"
+    sb		$t2, 0($t0)		# store into upper neighbor "came from south"
+
+    sw		$t1, 20($sp)		# store counter on stack
+    lw		$t1, 28($sp)		# get cy from stack
+    addi	$t1, $t1, -1		# cy - 1
+    la		$t0, cy		        # get pointer to cy
+    sw		$t1, 0($t0)		    # write new cy
+    jal		takeMove				# recursively call takeMove
+    lw		$t1, 28($sp)		# get cy from stack
+    la		$t0, cy		        # get pointer to cy
+    sw		$t1, 0($t0)		    # restore cy
+    lw		$t1, 20($sp)		# restore counter
+    rand2skip:
+    li		$t0, 4		# value for comparison
+    beq		$t1, $t0, doneOp	# if counter == 4, then all neighbors have been visited, so we are done. Else, fall through.
+rand3:
+    addi	$t1, $t1, 1			# increment counter
+    lw		$t0, 16($sp)		# get address of lower neighbor
+    lb		$t2, 0($t0)		# dereference value of neighbor
+    bnez    $t2, rand3skip    # if the space isn't free, then we skip visiting the neighbor. Otherwise, we will visit them.
+
+    li		$t2, 1		# value of "came from north"
+    sb		$t2, 0($t0)		# store into lower neighbor "came from north"
+
+    sw		$t1, 20($sp)		# store counter on stack
+    lw		$t1, 28($sp)		# get cy from stack
+    addi	$t1, $t1, 1		# cy + 1
+    la		$t0, cy		        # get pointer to cy
+    sw		$t1, 0($t0)		    # write new cy
+    jal		takeMove				# recursively call takeMove
+    lw		$t1, 28($sp)		# get cy from stack
+    la		$t0, cy		        # get pointer to cy
+    sw		$t1, 0($t0)		    # restore cy
+    lw		$t1, 20($sp)		# restore counter
+    rand3skip:
+    li		$t0, 4		# value for comparison
+    beq		$t1, $t0, doneOp	# if counter == 4, then all neighbors have been visited, so we are done. Else, fall through.
+    j		rand0				# jump to rand0 if not everything has been processed
+doneOp:
+    lw		$ra, 0($sp)		# restore return address
+    addiu   $sp, $sp, 32    # clean up stack
+    jr		$ra					# return
+    
+        
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
