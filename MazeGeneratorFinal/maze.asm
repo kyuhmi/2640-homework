@@ -1,3 +1,28 @@
+########################################################################
+# Program: maze               				Programmer: Kyung Ho Min
+# Due Date: Dec. 22nd, 2022							Course: CS2640
+########################################################################
+# Overall Program Functional Description:
+# This program generates a maze of height 5 <= cy <= 40 and width
+# 5 <= cx <= 40 based on the input of the user. This particular 
+# implementation uses a recursive algorithm to generate the maze.
+# 
+########################################################################
+# Register usage in Main:
+# $v0, $a0 - registers used for subroutine calling and linkage
+# 
+########################################################################
+# Pseudocode Description:
+# 1. Print seed prompt
+# 2. Read seed from user and seed the rand function
+# 3. Call getSize to set size of maze
+# 4. Call initBoard
+# 5. Call pickExit
+# 6. Call pickEntrance
+# 7. Call takeMove
+# 8. Call printBoard
+# 9. Exit.
+########################################################################
 .data
 wid:     .word 10    # Length of one row, must be 4n - 1
 hgt:     .word 10    # Number of rows
@@ -32,17 +57,15 @@ main:
 ########################################################################
 # Functional Description:
 #    Ask the user for the size of the maze.  If they ask for a dimension
-#    less than 5, we will just use 5.  If they ask for a dimension greater
-#    than 40, we will just use 40.  This routine will store the size into
-#    the globals wid and hgt.
+#    less than 5, we will ask again. If the user puts in a value greater
+#    than 40, we will ask them again. The values will be stored into the
+#    global width and height.
 #
 ########################################################################
 # Register Usage in the Function:
-#    $t0 -- Pointer into the board
-#    $t1, $t2 -- wid - 1 and hgt - 1, the values for the right edge and
-#     bottom row.
-#    $t3, $t4 -- loop counters
-#    $t6 -- the value to store
+#    $t0, $t1, $t2, $t7, $t8 - temporary values for calculations
+#    $v0 and $a0 - for syscalls
+#    
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
@@ -113,10 +136,12 @@ getSize:
 ########################################################################
 # Register Usage in the Function:
 #    $t0 -- Pointer into the board
-#    $t1, $t2 -- wid - 1 and hgt - 1, the values for the right edge and
+#    $t1, $t2 -- wid + 2 and hgt + 2, the values for the right edge and
 #     bottom row.
 #    $t3, $t4 -- loop counters
-#    $t6 -- the value to store
+#    $t5 -- pointer to first element of row
+#    $t6 -- value for branching comparisons
+#    $t8, $t9 -- values to be stored
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
@@ -208,16 +233,16 @@ placeInSquare:
 # Functional Description:
 #    This picks the entrance for the maze.  It goes to one of the
 #    cells on the north edge of the map (inside the border), then changes
-#   it's value from 0 (empty) to 1 (came from north).
+#    it's value from 0 (empty) to 1 (came from north).
 #    This routine will exit with cx, cy set to the cell, so we are ready
 #    to find a path here through the maze.
 #
 ########################################################################
 # Register Usage in the Function:
 #    $a0, $v0 -- used for syscall linkage, and calculations
-#    $t0 - for general computation
-#    We save $ra on stack, because we call the rand and placeInSquare
-#   functions
+#    $t0, $t1 - for general computation
+#    $sp -- We save $ra on stack, because we call the rand and placeInSquare
+#    functions
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
@@ -261,8 +286,8 @@ pickEntrance:
 # Register Usage in the Function:
 #    $a0, $v0 -- used for syscall linkage, and calculations
 #    $t0, $t1 - for general computation
-#    We save $ra on stack, because we call the rand and placeInSquare
-#   functions
+#    $sp -- We save $ra on stack, because we call the rand and placeInSquare
+#    functions
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
@@ -313,23 +338,22 @@ pickExit:
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
-#    1. Loop for each row on the board.  $t8 will point to the first cell
-#     in the row, and $t9 is the loop counter.
-#     1a.    Loop for each column, printing the north wall/door.  $t7 will
-#     point to the north cell, $t6 to the south cell, and $t5 is
-#     loop counter.
-#     1a1. If board[$t7] came from south or board[$t6] came from
-#     north, print open door.  Otherwise print wall.
-#     1b. At end of row, print closing char and newline.
-#     1c. If we are in the last row of the board, don't print the 'cells'
-#     at the bottom edge, they are the border of the map.  Skip
-#     steps 1d and 1e.
-#     1d.    Loop for each column, printing the west wall/door.  $t7 will
-#     point to the west cell, $t6 to the east cell, and $t5 is
-#     loop counter.
-#     1d1. If board[$t7] came from east or board[$t6] came from
-#     west, print open door.  Otherwise print wall.
-#     1e. At end of row, print closing char and newline.
+#    For each of the internal rows and the last row, do the following:
+#    For each column of the internal row, do the following:
+#        if the upper neighbor came from the south, then don't print the north wall.
+#        else if the current square came from the north, then don't print the north wall.
+#        else, print the north wall.
+#    endfor
+#    Print the ending north wall string.
+#    If we are done with printing the north walls according to the last border, then skip the next part.
+#    For each column of the same internal row starting again, do the following:
+#        if the left neighbor came from the east, then don't print the side wall.
+#        else if the current square came from the west, then don't print the side wall.
+#        else, we print the side wall.
+#    endfor
+#    Print the vertical wall ending string now.
+#    Move on to the next row.
+#    end
 #
 ########################################################################
 .data
@@ -471,40 +495,65 @@ seedrand:
 # Function Name: takeMove
 ########################################################################
 # Functional Description:
-#    This adds one more cell to the maze.  It starts with the cell cx, cy.
-#    It then counts how many of the neighboring cells are currently
-#    empty.
-#    *    If there is only one, then it adds that square to the maze,
-#     having that square point to this one, and moving cx, cy to that
-#     square.
-#    *    If there are two or three, it randomly picks one, then does the
-#     same as the only one case.
-#    *    If there are none, the routine clears the numLeft value, signifying
-#     that we are done with the maze (TBD change this in part 3).
+#    Recursive method to fill in all the unvisited spots in the maze.
+#    Before calling, cx and cy should be set to the first position of
+#    the maze, borders should be initialized to 5, and the start and 
+#    exit should be in place. 
 #
 ########################################################################
 # Register Usage in the Function:
-#    $a0, $v0 -- used for syscall linkage, and calculations
-#    We save $ra on stack, as well as $s0-$s5
-#    $t0, $t1 -- general use
-#    $s0 -- pointer to the square at cx, cy
-#    $s1 -- pointer to a neighboring cell
-#    $s2 -- how many neighbors are empty?
-#    $s3-$s5 -- possible neighbors to move to
+#     $a0, $v0 -- used for syscall linkage, and calculations
+#     $sp -- storing local values for function calls
+#     $ra -- return address
+#     $t0 - $t4 -- temporary values for counters and intermediate operations
 #
 ########################################################################
 # Algorithmic Description in Pseudocode:
-#    1. Save $ra and $s registers on the stack
-#    2. Set $s0 to point to the current cell
-#    3. Count the number of neighbors that have a 0 value.  The count
-#     will be in $s2, and $s3-$s5 will be the possible moves to
-#     neighbors:  1 = move north, 2 = move south, 3 = move east,
-#     4 = move west.
-#     3a. If we have one choice, move to that square and have it point back
-#     to this square.
-#     3b. If we have two or three choices, pick one at random.
-#     3c. If we have no choices, stop the generator
-#    4. Restore the $ra and $s register values
+#
+# Get values of cx and cy and then get the node that it points to
+# Get all the neighbors of the node and store them to the stack. Store ra too.
+# Call rand to select a random direction to move. Rand will return 0-3.
+# Initialize counter i to 0.
+# Given the output of rand, jump to these respective parts below:
+#     rand = 0:
+#         If left neighbor is not visited,
+#             Store value of "came from east" there
+#             Decrement cx in global memory
+#             Recursively call this function
+#         Else, don't do anything.
+#         Increment counter i.
+#         if i = 4, then go to Done.
+#         Else, fall through to the next case.
+#     rand = 1:
+#         If right neighbor is not visited,
+#             Store value of "came from west" to the neighbor
+#             Increment cx in global memory
+#             Recursively call this function
+#         Else, don't do anything.
+#         Increment counter i.
+#         if i = 4, then go to Done.
+#         Else, fall through to the next case.
+#     rand = 2:
+#         If upper neighbor is not visited,
+#             Store the value of "came from south" to the neighbor
+#             Increment cy in global memory
+#             Recursively call this function
+#         Else, don't do anything.
+#         Increment counter i.
+#         if i = 4, then go to Done.
+#         Else, fall through to the next case.
+#     rand = 3:
+#         If lower neighbor is not visited,
+#             Store the value of "came from north" to the neighbor
+#             Decrement cy in global memory
+#             REcursively call this function
+#         Else, don't do anything.
+#         Increment counter i.
+#         if i = 4, then go to Done.
+#         Else, go back to case rand = 0.
+# Done:
+#     Restore ra, clean up stack.
+#     Return.
 #
 ########################################################################
 

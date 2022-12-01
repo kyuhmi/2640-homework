@@ -1,0 +1,26 @@
+########################################################################
+# Program: maze               				Programmer: Kyung Ho Min
+# Due Date: Dec. 22nd, 2022							Course: CS2640
+########################################################################
+# Overall Program Functional Description:
+# This program generates a maze of height 5 <= cy <= 40 and width
+# 5 <= cx <= 40 based on the input of the user. This particular 
+# implementation uses a recursive algorithm to generate the maze.
+# 
+########################################################################
+# Register usage in Main:
+# $v0, $a0 - registers used for subroutine calling and linkage
+# 
+########################################################################
+# Pseudocode Description:
+# 1. Print seed prompt
+# 2. Read seed from user and seed the rand function
+# 3. Call getSize to set size of maze
+# 4. Call initBoard
+# 5. Call pickExit
+# 6. Call pickEntrance
+# 7. Call takeMove
+# 8. Call printBoard
+# 9. Exit.
+# 
+########################################################################

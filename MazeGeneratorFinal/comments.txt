@@ -1,0 +1,50 @@
+Register Usage in the Function:
+    $a0, $v0 -- used for syscall linkage, and calculations
+    $sp -- storing local values for function calls
+    $ra -- return address
+    $t0 - $t4 -- temporary values for counters and intermediate operations
+
+Get values of cx and cy and then get the node that it points to
+Get all the neighbors of the node and store them to the stack. Store ra too.
+Call rand to select a random direction to move. Rand will return 0-3.
+Initialize counter i to 0.
+Given the output of rand, jump to these respective parts below:
+    rand = 0:
+        If left neighbor is not visited,
+            Store value of "came from east" there
+            Decrement cx in global memory
+            Recursively call this function
+        Else, don't do anything.
+        Increment counter i.
+        if i = 4, then go to Done.
+        Else, fall through to the next case.
+    rand = 1:
+        If right neighbor is not visited,
+            Store value of "came from west" to the neighbor
+            Increment cx in global memory
+            Recursively call this function
+        Else, don't do anything.
+        Increment counter i.
+        if i = 4, then go to Done.
+        Else, fall through to the next case.
+    rand = 2:
+        If upper neighbor is not visited,
+            Store the value of "came from south" to the neighbor
+            Increment cy in global memory
+            Recursively call this function
+        Else, don't do anything.
+        Increment counter i.
+        if i = 4, then go to Done.
+        Else, fall through to the next case.
+    rand = 3:
+        If lower neighbor is not visited,
+            Store the value of "came from north" to the neighbor
+            Decrement cy in global memory
+            REcursively call this function
+        Else, don't do anything.
+        Increment counter i.
+        if i = 4, then go to Done.
+        Else, go back to case rand = 0.
+Done:
+    Restore ra, clean up stack.
+    Return.
