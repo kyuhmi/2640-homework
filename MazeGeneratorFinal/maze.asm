@@ -195,7 +195,8 @@ initBoard:
 ########################################################################
 # Functional Description:
 #    A value is passed in $a0, the number to be placed in one square of
-#    the board.  The global variables cx and cy indicate which square. (indexed starting with 1,1 for internal values)
+#    the board.  The global variables cx and cy indicate which square. 
+#    (indexed starting with 1,1 for internal values)
 #
 ########################################################################
 # Register Usage in the Function:
