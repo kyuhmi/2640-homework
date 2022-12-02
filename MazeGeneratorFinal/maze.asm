@@ -1,6 +1,6 @@
 # #######################################################################
 # Program: maze               				Programmer: Kyung Ho Min
-# Due Date: Dec. 22nd, 2022							Course: CS2640
+# Due Date: Dec. 13th, 2022							Course: CS2640
 # #######################################################################
 # Overall Program Functional Description:
 # This program generates a maze of height 5 <= cy <= 40 and width
